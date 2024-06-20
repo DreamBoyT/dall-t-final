@@ -1,9 +1,10 @@
 const express = require("express");
 const path = require("path");
 const { OpenAIClient, AzureKeyCredential } = require("@azure/openai");
+const cors = require("cors"); // Import CORS middleware
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000; // Use process.env.PORT for Azure, default to 3000 for local development
 
 // Set up your Azure OpenAI credentials
 const endpoint = "https://chat-gpt-a1.openai.azure.com/";
@@ -11,6 +12,14 @@ const azureApiKey = "c09f91126e51468d88f57cb83a63ee36";
 
 const client = new OpenAIClient(endpoint, new AzureKeyCredential(azureApiKey));
 const deploymentName = "Dalle3";
+
+// CORS middleware setup
+const corsOptions = {
+    origin: 'https://example.com', // Replace with your frontend URL
+    methods: ['GET', 'POST'], // Specify which methods are allowed
+};
+
+app.use(cors(corsOptions));
 
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));

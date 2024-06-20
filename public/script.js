@@ -6,134 +6,131 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Event listener for theme toggle
   themeToggle.addEventListener('change', function () {
-    document.body.classList.toggle('dark', themeToggle.checked);
+      document.body.classList.toggle('dark', themeToggle.checked);
   });
 
   generateBtn.addEventListener('click', function () {
-    generateImage();
+      generateImage();
   });
 
   function generateImage() {
-    const prompt = document.getElementById('text').value;
-    const size = document.getElementById('sizeSelect').value;
-    const style = document.getElementById('styleSelect').value;
-    const quality = document.getElementById('qualitySelect').value;
+      const prompt = document.getElementById('text').value;
+      const size = document.getElementById('sizeSelect').value;
+      const style = document.getElementById('styleSelect').value;
+      const quality = document.getElementById('qualitySelect').value;
 
-    if (!prompt) {
-      alert('Please enter a description or keyword.');
-      return;
-    }
+      if (!prompt) {
+          alert('Please enter a description or keyword.');
+          return;
+      }
 
-    loadingIndicator.classList.remove('hidden');
-    imageContainer.innerHTML = '';
+      loadingIndicator.classList.remove('hidden');
+      imageContainer.innerHTML = '';
 
-    fetch('/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, size: '1024x1024', style, quality }) // Always request 1024x1024 for resizing
-    })
+      fetch('/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, size, style, quality })
+      })
       .then(response => response.json())
       .then(data => {
-        if (data.imageUrls) {
-          data.imageUrls.forEach(url => {
-            if (size === '1600x900' || size === '1080x1920' || size === '1920x1080') {
-              const [width, height] = size.split('x').map(Number);
-              resizeImage(url, width, height).then(resizedUrl => {
-                const imageWrapper = createImageWrapper(resizedUrl, width, height);
-                imageContainer.appendChild(imageWrapper);
+          if (data.imageUrls) {
+              data.imageUrls.forEach(url => {
+                  if (size === '1600x900' || size === '1080x1920' || size === '1920x1080') {
+                      const [width, height] = size.split('x').map(Number);
+                      resizeImage(url, width, height).then(resizedUrl => {
+                          const imageWrapper = createImageWrapper(resizedUrl, width, height);
+                          imageContainer.appendChild(imageWrapper);
+                      });
+                  } else {
+                      const [width, height] = size.split('x').map(Number);
+                      const imageWrapper = createImageWrapper(url, width, height);
+                      imageContainer.appendChild(imageWrapper);
+                  }
               });
-            } else {
-              const [width, height] = size.split('x').map(Number);
-              const imageWrapper = createImageWrapper(url, width, height);
-              imageContainer.appendChild(imageWrapper);
-            }
-          });
-        }
+          }
       })
       .catch(error => {
-        console.error('Error generating image:', error);
-        alert('Failed to generate image.');
+          console.error('Error generating image:', error);
+          alert('Failed to generate image.');
       })
       .finally(() => {
-        loadingIndicator.classList.add('hidden');
+          loadingIndicator.classList.add('hidden');
       });
   }
 
   function resizeImage(url, width, height) {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+      return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => {
+              const canvas = document.createElement('canvas');
+              const ctx = canvas.getContext('2d');
 
-        // Set canvas dimensions to match desired dimensions
-        canvas.width = width;
-        canvas.height = height;
+              canvas.width = width;
+              canvas.height = height;
 
-        // Draw image onto canvas at desired dimensions
-        ctx.drawImage(img, 0, 0, width, height);
+              ctx.drawImage(img, 0, 0, width, height);
 
-        // Get base64 representation of resized image without compression
-        canvas.toBlob(blob => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            resolve(reader.result);
+              canvas.toBlob(blob => {
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                      resolve(reader.result);
+                  };
+                  reader.readAsDataURL(blob);
+              }, 'image/png');
           };
-          reader.readAsDataURL(blob);
-        }, 'image/png');
-      };
-      img.onerror = reject;
-      img.src = url;
-    });
+          img.onerror = reject;
+          img.src = url;
+      });
   }
 
   function createImageWrapper(url, width, height) {
-    const imageWrapper = document.createElement('div');
-    imageWrapper.className = 'relative bg-white dark:bg-gray-700 p-2 rounded-lg shadow-lg';
+      const imageWrapper = document.createElement('div');
+      imageWrapper.className = 'relative bg-white dark:bg-gray-700 p-2 rounded-lg shadow-lg';
 
-    const img = document.createElement('img');
-    img.src = url;
-    img.alt = 'Generated Image';
-    img.className = 'w-full h-auto rounded-lg';
-    img.style.width = `${width}px`;
-    img.style.height = `${height}px`;
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = 'Generated Image';
+      img.className = 'w-full h-auto rounded-lg';
+      img.style.width = `${width}px`;
+      img.style.height = `${height}px`;
 
-    const buttonRow = document.createElement('div');
-    buttonRow.className = 'button-row';
+      const buttonRow = document.createElement('div');
+      buttonRow.className = 'button-row';
 
-    const addButton = createIconButton('fas fa-plus', function () {
-      generateImage(); // Regenerate image on add button click
-    });
+      const addButton = createIconButton('fas fa-plus', function () {
+          generateImage();
+      });
 
-    const downloadButton = createIconButton('fas fa-download', function () {
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `generated_image_${width}x${height}.png`; // Set the download attribute
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    });
+      const downloadButton = createIconButton('fas fa-download', function () {
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `generated_image_${width}x${height}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+      });
 
-    const trashButton = createIconButton('fas fa-trash', function () {
-      imageWrapper.remove();
-    });
+      const trashButton = createIconButton('fas fa-trash', function () {
+          imageWrapper.remove();
+      });
 
-    buttonRow.appendChild(addButton);
-    buttonRow.appendChild(downloadButton);
-    buttonRow.appendChild(trashButton);
+      buttonRow.appendChild(addButton);
+      buttonRow.appendChild(downloadButton);
+      buttonRow.appendChild(trashButton);
 
-    imageWrapper.appendChild(img);
-    imageWrapper.appendChild(buttonRow);
+      imageWrapper.appendChild(img);
+      imageWrapper.appendChild(buttonRow);
 
-    return imageWrapper;
+      return imageWrapper;
   }
 
   function createIconButton(iconClass, onClick) {
-    const button = document.createElement('button');
-    button.className = 'bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded';
-    button.innerHTML = `<i class="${iconClass}"></i>`;
-    button.addEventListener('click', onClick);
-    return button;
+      const button = document.createElement('button');
+      button.className = 'bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded';
+      button.innerHTML = `<i class="${iconClass}"></i>`;
+      button.addEventListener('click', onClick);
+      return button;
   }
 });
