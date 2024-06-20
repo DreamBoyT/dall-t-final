@@ -15,7 +15,7 @@ const deploymentName = "Dalle3";
 
 // CORS middleware setup
 const corsOptions = {
-    origin: 'https://example.com', // Replace with your frontend URL
+    origin: 'https://thankful-river-0139bb800.5.azurestaticapps.net', // Replace with your frontend URL
     methods: ['GET', 'POST'], // Specify which methods are allowed
 };
 
