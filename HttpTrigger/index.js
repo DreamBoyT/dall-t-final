@@ -9,6 +9,21 @@ const deploymentName = "Dalle3";  // Replace with your deployment name
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
 
+    // Enable CORS for all origins (* for demonstration purposes)
+    context.res = {
+        headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization"
+        }
+    };
+
+    if (req.method === "OPTIONS") {
+        context.res.status = 200;
+        context.done();
+        return;
+    }
+
     const { prompt, size, style, quality } = req.body;
 
     if (!prompt || !size || !style || !quality) {
@@ -36,7 +51,7 @@ module.exports = async function (context, req) {
         context.log.error("Error generating image:", err);
         context.res = {
             status: 500,
-            body: "Failed to generate image."
+            body: `Failed to generate image. Error: ${err.message}`
         };
     }
 };
