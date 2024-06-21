@@ -23,7 +23,11 @@ module.exports = async function (context, req) {
     const modifiedPrompt = `${prompt}, style: ${style}, quality: ${quality}`;
 
     try {
-        const results = await client.getImages(deploymentName, modifiedPrompt, { n: 1, size });
+        const results = await client.getImages(deploymentName, {
+            prompt: modifiedPrompt,
+            n: 1,
+            size
+        });
         context.res = {
             status: 200,
             body: { imageUrls: results.data.map(image => image.url) }
