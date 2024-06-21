@@ -1,15 +1,15 @@
 const express = require("express");
 const path = require("path");
-const axios = require("axios"); // Using axios for HTTP requests
-const cors = require("cors"); // Import CORS middleware
+const axios = require("axios");
+const cors = require("cors");
 
 const app = express();
 const port = 3000;
 
 // CORS middleware setup
 const corsOptions = {
-    origin: 'https://thankful-river-0139bb800.5.azurestaticapps.net', // Replace '*' with your frontend URL if you want to restrict access
-    methods: ['GET', 'POST'], // Specify which methods are allowed
+    origin: 'https://thankful-river-0139bb800.5.azurestaticapps.net', // Replace with your frontend URL
+    methods: ['GET', 'POST'],
 };
 
 app.use(cors(corsOptions));
