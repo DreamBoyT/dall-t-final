@@ -32,7 +32,12 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prompt, size, style, quality })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.imageUrls) {
                 data.imageUrls.forEach(url => {
@@ -41,6 +46,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         resizeImage(url, width, height).then(resizedUrl => {
                             const imageWrapper = createImageWrapper(resizedUrl, width, height);
                             imageContainer.appendChild(imageWrapper);
+                        }).catch(error => {
+                            console.error('Error resizing image:', error);
                         });
                     } else {
                         const [width, height] = size.split('x').map(Number);
@@ -48,6 +55,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         imageContainer.appendChild(imageWrapper);
                     }
                 });
+            } else {
+                console.error('No image URLs returned');
+                alert('No images were generated.');
             }
         })
         .catch(error => {
@@ -80,7 +90,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     reader.readAsDataURL(blob);
                 }, 'image/png');
             };
-            img.onerror = reject;
+            img.onerror = () => {
+                reject(new Error('Image load error'));
+            };
             img.src = url;
         });
     }
